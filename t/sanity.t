@@ -281,7 +281,7 @@ cat
 --- request
 GET /t
 --- response_body
-10
+4
 --- no_error_log
 [error]
 
@@ -309,17 +309,17 @@ GET /t
             col = db:get_col("test")
             col:delete({name="puppy"})
 
-            for i = 1, 3 do
+            for i = 1, 10 do
                 col:insert({{name="puppy", n=i, m="foo"}})
             end
 
-            r = col:find({name="puppy"}, {n=0}, 4)
+            r = col:find({name="puppy"}, {n=0}, 3)
             for i , v in r:pairs() do
                 ngx.say(v["n"])
                 ngx.say(v["name"])
             end
 
-            r = col:find({name="puppy"}, {n=1}, 4)
+            r = col:find({name="puppy"}, {n=1}, 3)
             for i , v in r:pairs() do
                 ngx.say(v["n"])
                 ngx.say(v["name"])
@@ -797,6 +797,53 @@ GET /t
 GET /t
 --- response_body
 10
+--- no_error_log
+[error]
+
+=== TEST 21: query by skip and retnum
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local mongo = require "resty.mongol"
+            conn = mongo:new()
+            conn:set_timeout(10000) 
+            ok, err = conn:connect("10.6.2.51")
+
+            if not ok then
+                ngx.say("connect failed: "..err)
+            end
+
+            local db = conn:new_db_handle("test")
+            local col = db:get_col("test")
+
+            r = db:auth("admin", "admin")
+            if not r then ngx.say("auth failed") end
+
+            r, err = col:delete({}, nil, true)
+            if not r then ngx.say("delete failed: "..err) end
+
+            local t = {a=1,b=2}
+            
+            for i = 1, 10 do
+                col:insert({{name="puppy"}})
+            end
+
+            sel = {name="puppy"}
+            id, results, t = col:query(sel,{_id=1},0,1)
+            ngx.say(#results)
+
+            id, results, t = col:query(sel,{_id=1},5,5)
+            ngx.say(#results)
+
+            conn:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body
+1
+5
 --- no_error_log
 [error]
 
