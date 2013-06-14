@@ -5,7 +5,7 @@ use Cwd qw(cwd);
 
 repeat_each(1);
 
-plan tests => repeat_each() * (4 * blocks());
+plan tests => repeat_each() * (4 * blocks()) - 1;
 
 my $pwd = cwd();
 
@@ -768,7 +768,6 @@ GET /t
 --- output_files
 >>> /tmp/testfile chop
 ABCDEFGHIJKLMNOPQRST
---- ONLY
 --- no_error_log
 [error]
 
