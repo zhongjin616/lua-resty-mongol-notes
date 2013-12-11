@@ -32,7 +32,7 @@ __DATA__
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -61,7 +61,7 @@ auth fails
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -94,7 +94,7 @@ true
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51", 27018)
+            ok, err = conn:connect("127.0.0.1", 27018)
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -127,7 +127,7 @@ false
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51", 27018)
+            ok, err = conn:connect("127.0.0.1", 27018)
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -169,7 +169,7 @@ get primary
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end

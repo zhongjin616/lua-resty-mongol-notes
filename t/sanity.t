@@ -31,7 +31,7 @@ __DATA__
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -76,7 +76,7 @@ dog
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(1000) 
-            ok, err = conn:connect("10.6.2.51", 27016)
+            ok, err = conn:connect("127.0.0.1", 27016)
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -99,7 +99,7 @@ connect failed: connection refused
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -110,7 +110,7 @@ connect failed: connection refused
                 ngx.say("set keepalive failed: "..err)
             end
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -135,7 +135,7 @@ GET /t
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -173,7 +173,7 @@ GET /t
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            local r, err = conn:connect("10.6.2.51")
+            local r, err = conn:connect("127.0.0.1")
             if not r then ngx.say("connect failed: "..err) end
 
             local db = conn:new_db_handle("test")
@@ -251,7 +251,7 @@ cat
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -294,7 +294,7 @@ GET /t
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -353,7 +353,7 @@ nil
             conn = mongo:new()
             conn:set_timeout(1000) 
 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -400,7 +400,7 @@ ns not found
             conn = mongo:new()
             conn:set_timeout(10000) 
 
-            local ok, err = conn:connect("10.6.2.51",27017)
+            local ok, err = conn:connect("127.0.0.1",27017)
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -458,7 +458,7 @@ not found
             conn = mongo:new()
             conn:set_timeout(10000) 
 
-            local ok, err = conn:connect("10.6.2.51")
+            local ok, err = conn:connect("127.0.0.1")
             if not ok then
                 ngx.say("connect failed: "..err)
             end
@@ -530,7 +530,7 @@ delete failed: need to login
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -597,7 +597,7 @@ a20
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -647,7 +647,7 @@ nil
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -716,7 +716,7 @@ a25
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -765,7 +765,7 @@ GET /t
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
@@ -808,7 +808,7 @@ GET /t
             local mongo = require "resty.mongol"
             conn = mongo:new()
             conn:set_timeout(10000) 
-            ok, err = conn:connect("10.6.2.51")
+            ok, err = conn:connect("127.0.0.1")
 
             if not ok then
                 ngx.say("connect failed: "..err)
