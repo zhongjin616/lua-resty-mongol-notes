@@ -4,7 +4,7 @@ lua-resty-mongol - Lua Mongodb driver for ngx_lua base on the cosocket API
 
 Thanks to project Mongol by daurnimator
 
-Dependancies
+Dependencies
 ======
 
 luajit(or `attempt to yield across metamethod/C-call boundary error` will be produced.)
