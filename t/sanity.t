@@ -847,3 +847,49 @@ GET /t
 --- no_error_log
 [error]
 
+=== TEST 22: insert array but get nil
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local mongo = require "resty.mongol"
+            conn = mongo:new()
+            conn:set_timeout(10000) 
+            ok, err = conn:connect("127.0.0.1")
+
+            if not ok then
+                ngx.say("connect failed: "..err)
+            end
+
+            local db = conn:new_db_handle("test")
+            local col = db:get_col("test")
+
+            r = db:auth("admin", "admin")
+            if not r then ngx.say("auth failed") end
+
+            r, err = col:delete({}, nil, true)
+            if not r then ngx.say("delete failed: "..err) end
+
+            col:insert({ {photos={"1","2"} } })
+            
+            r = col:find_one({})
+            for i , v in pairs(r["photos"]) do
+                ngx.say(i)
+                ngx.say(v)
+            end
+            ngx.say(#r["photos"])
+
+            conn:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body
+1
+1
+2
+2
+2
+--- no_error_log
+[error]
+

@@ -62,6 +62,9 @@ function cursor_methods:sort(field, size)
                 if not a and not b then return false end
                 if not a then return true end
                 if not b then return false end
+                if not a[key] and not b[key] then return false end
+                if not a[key] then return true end
+                if not b[key] then return false end
                 if asc == 1 then
                     return a[key] < b[key]
                 else
