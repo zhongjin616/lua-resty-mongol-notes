@@ -57,14 +57,11 @@ function cursor_methods:sort(field, size)
     end
     if asc ~= 1 and asc ~= -1 then return nil, "order must be 1 or -1" end
 
-    local sort_f = 
-            function(a, b) 
+    local sort_f =
+            function(a, b)
                 if not a and not b then return false end
                 if not a then return true end
                 if not b then return false end
-                if not a[key] and not b[key] then return false end
-                if not a[key] then return true end
-                if not b[key] then return false end
                 if asc == 1 then
                     return a[key] < b[key]
                 else
@@ -80,11 +77,11 @@ function cursor_methods:sort(field, size)
         elseif self.num_each ~= 0 and self.limit_n == 0 then
             size = self.num_each
         else
-            size = (self.num_each < self.limit_n 
+            size = (self.num_each < self.limit_n
                         and self.num_each) or self.limit_n
         end
-        
-        self.id, self.results, t = self.col:query(self.query, 
+
+        self.id, self.results, t = self.col:query(self.query,
                         self.returnfields, self.i, size)
         table.sort(self.results, sort_f)
     else
@@ -107,13 +104,13 @@ function cursor_methods:next()
 
     local t
     if not self.id then
-        self.id, self.results, t = self.col:query(self.query, 
+        self.id, self.results, t = self.col:query(self.query,
                         self.returnfields, self.i, self.num_each)
         if self.id == "\0\0\0\0\0\0\0\0" then
             self.done = true
         end
     else
-        self.id, self.results, t = self.col:getmore(self.id, 
+        self.id, self.results, t = self.col:getmore(self.id,
                         self.num_each, self.i)
         if self.id == "\0\0\0\0\0\0\0\0" then
             self.done = true
