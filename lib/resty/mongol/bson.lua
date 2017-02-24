@@ -29,7 +29,7 @@ local object_id_mt = obid.metatable
 local binary_mt = {}
 local utc_date = {}
 
-
+-- refer ==> http://bsonspec.org/spec.html
 local function read_document ( get , numerical )
 	local bytes = le_uint_to_num ( get ( 4 ) )
 
@@ -37,6 +37,8 @@ local function read_document ( get , numerical )
 	local t = { }
 	while true do
 		local op = get ( 1 )
+        -- 在字符串中使用\0会把其解释为对应的二进制,
+        -- 相当于字符串的值为0000 0000(lua字符串没有C语言的\0结尾)
 		if op == "\0" then break end
 
 		local e_name = read_terminated_string ( get )
@@ -71,9 +73,9 @@ local function read_document ( get , numerical )
 		elseif op == "\10" then -- Null
 			v = nil
 		elseif op == "\16" then --int32
-			v = le_int_to_num ( get ( 4 ) , 1 , 8 )
-        elseif op == "\17" then --int64
-            v = le_int_to_num(get(8), 1, 8)
+			v = le_int_to_num(get(4), 1, 4)
+        elseif op == "\17" then --uint64 Timestamp
+            v = le_uint_to_num(get(8), 1, 8)
         elseif op == "\18" then --int64
             v = le_int_to_num(get(8), 1, 8)
 		else
@@ -119,11 +121,14 @@ local function from_bson ( get )
 	return t
 end
 
+-- as pack() and to_bson() may need to call each other
+-- so declare it here, but define it later
 local to_bson
 local function pack ( k , v )
 	local ot = type ( v )
 	local mt = getmetatable ( v )
 
+    -- refer: http://bsonspec.org/spec.html
 	if ot == "number" then
         if floor(v) == v then
             if v >= -2^31 and v <= 2^31-1 then --int32
@@ -165,8 +170,9 @@ local function pack ( k , v )
 	end
 end
 
+-- @ob single document in mongodb
 function to_bson(ob)
-	-- Find out if ob if an array; string->value map; or general table
+    -- Find out if ob is a pure array, pure string->value map or general table
 	local onlyarray = true
 	local seen_n , high_n = { } , 0
 	local onlystring = true
@@ -177,8 +183,9 @@ function to_bson(ob)
 			if t_k == "number" and k >= 0 then
 				if k >= high_n then
 					high_n = k
-					seen_n [ k ] = v
 				end
+                --fixbug: #52 parirs() does not guarantee the orders
+                seen_n [ k ] = v
 			else
 				onlyarray = false
 			end
@@ -187,20 +194,19 @@ function to_bson(ob)
 	end
 
 	local retarray , m = false
-	if onlystring then -- Do string first so the case of an empty table is done properly
+    -- Do string first so the case of an empty table is done properly
+	if onlystring then
 		local r = { }
         for k , v in pairs ( ob ) do
---ngx.log(ngx.ERR,"="..k..i)
             t_insert ( r , pack ( k , v ) )
         end
 		m = t_concat ( r )
 	elseif onlyarray then
 		local r = { }
-
 		local low = 1
 		--if seen_n [ 0 ] then low = 0 end
 		for i=low , high_n do
-			r [ i ] = pack ( i - 1 , seen_n [ i ] )
+			r [ i ] = pack ( i - 1 , seen_n [ i ] ) -- replace the index in bson
 		end
 
 		m = t_concat ( r , "" , low , high_n )
@@ -216,6 +222,7 @@ function to_bson(ob)
 		return to_bson ( { _keys = keys , _vals = vals } )
 	end
 
+    -- bson: int32..e_list.."\x00"
 	return num_to_le_uint ( #m + 4 + 1 ) .. m .. "\0" , retarray
 end
 

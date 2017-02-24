@@ -1,3 +1,4 @@
+-- (...) would be "resty.mongol.dbmt"
 local mod_name = (...):match ( "^(.*)%..-$" )
 
 local misc = require ( mod_name .. ".misc" )

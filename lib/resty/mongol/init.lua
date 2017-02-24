@@ -1,5 +1,7 @@
 module("resty.mongol", package.seeall)
 
+-- when you call and MUST call require("resty.mongol") not `lua xxx.lua`
+-- (...) will be setted to "resty.mongol"
 local mod_name = (...)
 
 local assert , pcall = assert , pcall

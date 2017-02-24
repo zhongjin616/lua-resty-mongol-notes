@@ -7,6 +7,9 @@ local strbyte , strchar = string.byte , string.char
 
 local ll = { }
 
+-- le means 'little-endian'
+-- @s 无符号整型二进制字节串
+-- 二进制原码 0000 0000 0000 0000 0000 0000 0011 0010 ==> 50
 local le_uint_to_num = function ( s , i , j )
 	i , j = i or 1 , j or #s
 	local b = { strbyte ( s , i , j ) }
@@ -16,12 +19,19 @@ local le_uint_to_num = function ( s , i , j )
 	end
 	return n
 end
+-- @s 有符号整型二进制补码字节串
+-- 二进制原码 1000 0000 0000 0000 0000 0000 0011 0010 ==> -50
+-- 二进制反码 1111 1111 1111 1111 1111 1111 1100 1101 ==> -50
+-- 二进制补码 1111 1111 1111 1111 1111 1111 1100 1110 ==> -50
 local le_int_to_num = function ( s , i , j )
 	i , j = i or 1 , j or #s
 	local n = le_uint_to_num ( s , i , j )
 	local overflow = 2^(8*(j-i) + 7)
-	if n > 2^overflow then
-		n = - ( n % 2^overflow )
+	if n > overflow then
+        -- 选取最小公模数: 2*overflow
+        -- 负数真值  =  其补码的二进制形式值 - 最小公模数(想象360度的圆， 12小时的钟)
+        -- (0-真值) = 0+补码形式值(看作无符号数，即符号参与运算，不然使用补码就没有意义) - 最小公模
+		n = n - 2*overflow
 	end
 	return n
 end
@@ -34,9 +44,14 @@ local num_to_le_uint = function ( n , bytes )
 	return strchar ( unpack ( b ) )
 end
 local num_to_le_int = function ( n , bytes )
+    bytes = bytes or 4
+    if n < 0 then -- Converted to unsigned (two's complement)
+        n = 2^(8*bytes) + n
+    end
 	return num_to_le_uint ( n , bytes )
 end
 
+-- be means 'big-endian'
 local be_uint_to_num = function ( s , i , j )
 	i , j = i or 1 , j or #s
 	local b = { strbyte ( s , i , j ) }

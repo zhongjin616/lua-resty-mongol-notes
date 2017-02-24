@@ -1,12 +1,11 @@
 local mod_name = (...):match ( "^(.*)%..-$" )
 
 local misc = require ( mod_name .. ".misc" )
+local attachpairs_start = misc.attachpairs_start
 
 local assert , pcall = assert , pcall
 local ipairs , pairs = ipairs , pairs
 local t_insert , t_concat = table.insert , table.concat
-
-local attachpairs_start = misc.attachpairs_start
 
 local ll = require ( mod_name .. ".ll" )
 local num_to_le_uint = ll.num_to_le_uint
@@ -44,7 +43,7 @@ end
 
 local function full_collection_name ( self , collection )
     local db = assert ( self.db , "Not current in a database" )
-    return  db .. "." .. collection .. "\0"
+    return  db .. "." .. collection .. "\0" -- construct C format string
 end
 
 local id = 0
@@ -100,7 +99,7 @@ local function handle_reply ( conn , req_id , offset_i )
 end
 
 function colmethods:insert(docs, continue_on_error, safe)
-    if #docs < 1 then
+    if #docs < 1 then -- docs need to be an array
         return nil, "docs needed"
     end
 
@@ -117,7 +116,7 @@ function colmethods:insert(docs, continue_on_error, safe)
                 ..t_concat(t)
     local id, send = docmd(self.conn, "INSERT", m)
     if send == 0 then
-        return nil, "send message failed"   
+        return nil, "send message failed"
     end
 
     if safe ~= 0 then
@@ -125,14 +124,15 @@ function colmethods:insert(docs, continue_on_error, safe)
         if not r then
             return nil, err
         end
-    
+
         if r["err"] then
             return nil, r["err"]
         else
             return r["n"]
         end
     else
-        return -1 end
+        return -1
+    end
 end
 
 function colmethods:update(selector, update, upsert, multiupdate, safe)
@@ -144,11 +144,11 @@ function colmethods:update(selector, update, upsert, multiupdate, safe)
     selector = to_bson(selector)
     update = to_bson(update)
 
-    local m = "\0\0\0\0" .. full_collection_name(self, self.col) 
+    local m = "\0\0\0\0" .. full_collection_name(self, self.col)
                 .. num_to_le_uint ( flags ) .. selector .. update
     local id, send = docmd(self.conn, "UPDATE", m)
     if send == 0 then
-        return nil, "send message failed"   
+        return nil, "send message failed"
     end
 
     if safe ~= 0 then
@@ -156,7 +156,7 @@ function colmethods:update(selector, update, upsert, multiupdate, safe)
         if not r then
             return nil, err
         end
-    
+
         if r["err"] then
             return nil, r["err"]
         else
@@ -172,20 +172,20 @@ function colmethods:delete(selector, single_remove, safe)
 
     selector = to_bson(selector)
 
-    local m = "\0\0\0\0" .. full_collection_name(self, self.col) 
+    local m = "\0\0\0\0" .. full_collection_name(self, self.col)
                 .. num_to_le_uint(flags) .. selector
 
     local id, sent = docmd(self.conn, "DELETE", m)
     if sent == 0 then
-        return nil, "send message failed"   
+        return nil, "send message failed"
     end
-    
+
     if safe ~= 0 then
         local r, err = self.db_obj:cmd({getlasterror=1})
         if not r then
             return nil, err
         end
-    
+
         if r["err"] then
             return nil, r["err"]
         else
@@ -198,7 +198,7 @@ function colmethods:kill_cursors(cursorIDs)
     local n = #cursorIDs
     cursorIDs = t_concat(cursorIDs)
 
-    local m = "\0\0\0\0" .. full_collection_name(self, self.col) 
+    local m = "\0\0\0\0" .. full_collection_name(self, self.col)
                 .. num_to_le_uint(n) .. cursorIDs
 
     return docmd(self.conn, "KILL_CURSORS", m )
@@ -234,7 +234,7 @@ function colmethods:query(query, returnfields, numberToSkip, numberToReturn, opt
 end
 
 function colmethods:getmore(cursorID, numberToReturn, offset_i)
-    local m = "\0\0\0\0" .. full_collection_name(self, self.col) 
+    local m = "\0\0\0\0" .. full_collection_name(self, self.col)
                 .. num_to_le_int(numberToReturn or 0) .. cursorID
 
     local req_id = docmd(self.conn, "GET_MORE" , m)
@@ -246,7 +246,7 @@ function colmethods:count(query)
             count = self.col;
             query = query or { } ;
         } , "count" ) )
-        
+
     if not r then
         return nil, err
     end
